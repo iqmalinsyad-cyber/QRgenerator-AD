@@ -1,0 +1,6 @@
+{
+  "name": "QR Code Generator Dinamik",
+  "description": "Penjana Kod QR Dinamik moden dengan kustomasi warna, logo, saiz fleksibel, format PNG & SVG, serta pengimbas dan sejarah imbasan.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
