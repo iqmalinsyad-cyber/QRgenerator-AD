@@ -1,0 +1,18 @@
+{
+  "short_name": "QR Studio",
+  "name": "QR Studio @ Aidee Creatives",
+  "description": "Penjana Kod QR Dinamik & Pantas berasaskan HTML & Vektor Moden",
+  "icons": [
+    {
+      "src": "https://lh3.googleusercontent.com/d/198r4DfNb4jDUBy7RjryG9GEBoDMB8nhg",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "display": "standalone",
+  "orientation": "portrait"
+}

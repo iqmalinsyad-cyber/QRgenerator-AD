@@ -49,16 +49,23 @@ export const StyleCustomizer: React.FC<StyleCustomizerProps> = ({
     onChange({ ...config, [key]: val });
   };
 
+  const updateMultiple = (partial: Partial<QRStyleConfig>) => {
+    onChange({ ...config, ...partial });
+  };
+
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
-          updateConfig('logoUrl', event.target.result as string);
+          const updates: Partial<QRStyleConfig> = {
+            logoUrl: event.target.result as string,
+          };
           if (config.errorCorrectionLevel === 'L' || config.errorCorrectionLevel === 'M') {
-            updateConfig('errorCorrectionLevel', 'H');
+            updates.errorCorrectionLevel = 'H';
           }
+          updateMultiple(updates);
         }
       };
       reader.readAsDataURL(file);
@@ -89,18 +96,35 @@ export const StyleCustomizer: React.FC<StyleCustomizerProps> = ({
   ];
 
   // Font Family choices
-  const fontFamilies: { id: FontFamily; label: string; fontStyle: string; sample: string }[] = [
-    { id: 'Plus Jakarta Sans', label: 'Plus Jakarta Sans', fontStyle: "'Plus Jakarta Sans', sans-serif", sample: 'Moden & Bersih' },
-    { id: 'Inter', label: 'Inter', fontStyle: "'Inter', sans-serif", sample: 'Teknikal & Rapi' },
-    { id: 'Outfit', label: 'Outfit', fontStyle: "'Outfit', sans-serif", sample: 'Geometrik Premium' },
-    { id: 'Montserrat', label: 'Montserrat', fontStyle: "'Montserrat', sans-serif", sample: 'Tegas & Berani' },
-    { id: 'Poppins', label: 'Poppins', fontStyle: "'Poppins', sans-serif", sample: 'Mesra & Bulat' },
-    { id: 'Playfair Display', label: 'Playfair Display', fontStyle: "'Playfair Display', serif", sample: 'Mewah Editorial' },
-    { id: 'Merriweather', label: 'Merriweather', fontStyle: "'Merriweather', serif", sample: 'Klasik Berwibawa' },
-    { id: 'Oswald', label: 'Oswald', fontStyle: "'Oswald', sans-serif", sample: 'Padat Impak' },
-    { id: 'Roboto Mono', label: 'Roboto Mono', fontStyle: "'Roboto Mono', monospace", sample: 'Kod Monospace' },
-    { id: 'Space Grotesk', label: 'Space Grotesk', fontStyle: "'Space Grotesk', sans-serif", sample: 'Futuristik Cyber' },
+  const fontFamilies: {
+    id: FontFamily;
+    label: string;
+    fontStyle: string;
+    category: 'Sans' | 'Serif' | 'Mono' | 'Display';
+    sample: string;
+  }[] = [
+    { id: 'Plus Jakarta Sans', label: 'Plus Jakarta Sans', fontStyle: "'Plus Jakarta Sans', sans-serif", category: 'Sans', sample: 'Moden & Bersih' },
+    { id: 'Outfit', label: 'Outfit', fontStyle: "'Outfit', sans-serif", category: 'Sans', sample: 'Geometrik Premium' },
+    { id: 'Inter', label: 'Inter', fontStyle: "'Inter', sans-serif", category: 'Sans', sample: 'Teknikal & Rapi' },
+    { id: 'Montserrat', label: 'Montserrat', fontStyle: "'Montserrat', sans-serif", category: 'Sans', sample: 'Tegas & Berani' },
+    { id: 'Poppins', label: 'Poppins', fontStyle: "'Poppins', sans-serif", category: 'Sans', sample: 'Mesra & Bulat' },
+    { id: 'Playfair Display', label: 'Playfair Display', fontStyle: "'Playfair Display', Georgia, serif", category: 'Serif', sample: 'Mewah Editorial' },
+    { id: 'Merriweather', label: 'Merriweather', fontStyle: "'Merriweather', Georgia, serif", category: 'Serif', sample: 'Klasik Berwibawa' },
+    { id: 'Oswald', label: 'Oswald', fontStyle: "'Oswald', Impact, sans-serif", category: 'Display', sample: 'Padat Impak' },
+    { id: 'Roboto Mono', label: 'Roboto Mono', fontStyle: "'Roboto Mono', monospace", category: 'Mono', sample: 'Kod Monospace' },
+    { id: 'Space Grotesk', label: 'Space Grotesk', fontStyle: "'Space Grotesk', sans-serif", category: 'Display', sample: 'Futuristik Cyber' },
   ];
+
+  const handleSelectFontFamily = (fontId: FontFamily) => {
+    const updates: Partial<QRStyleConfig> = {
+      topHeadingFont: fontId,
+      bottomCaptionFont: fontId,
+    };
+    if (!config.topHeading && !config.bottomCaption) {
+      updates.topHeading = 'IMBAS SAYA';
+    }
+    updateMultiple(updates);
+  };
 
   const quickColors = [
     '#0f172a', '#1e293b', '#2563eb', '#4f46e5', '#7c3aed',
@@ -491,6 +515,23 @@ export const StyleCustomizer: React.FC<StyleCustomizerProps> = ({
             {/* Top Heading Styling Controls */}
             {config.topHeading && (
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-2 border-t border-slate-200/70">
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                    Jenis Fon Tajuk
+                  </label>
+                  <select
+                    value={config.topHeadingFont || 'Plus Jakarta Sans'}
+                    onChange={(e) => updateConfig('topHeadingFont', e.target.value as FontFamily)}
+                    className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 font-medium cursor-pointer"
+                  >
+                    {fontFamilies.map((f) => (
+                      <option key={f.id} value={f.id}>
+                        {f.label} ({f.category})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 <div>
                   <label className="text-[11px] font-semibold text-slate-600 block mb-1">
                     {t.headingSizeLabel} ({config.topHeadingSize || 18}px)
@@ -526,7 +567,7 @@ export const StyleCustomizer: React.FC<StyleCustomizerProps> = ({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 self-end pb-1 col-span-2 sm:col-span-1">
+                <div className="flex items-center gap-3 self-end pb-1 col-span-2 sm:col-span-3">
                   <label className="flex items-center gap-1.5 text-xs text-slate-700 cursor-pointer">
                     <input
                       type="checkbox"
@@ -599,6 +640,23 @@ export const StyleCustomizer: React.FC<StyleCustomizerProps> = ({
             {/* Bottom Caption Styling Controls */}
             {config.bottomCaption && (
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-2 border-t border-slate-200/70">
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                    Jenis Fon Kapsyen
+                  </label>
+                  <select
+                    value={config.bottomCaptionFont || 'Plus Jakarta Sans'}
+                    onChange={(e) => updateConfig('bottomCaptionFont', e.target.value as FontFamily)}
+                    className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 font-medium cursor-pointer"
+                  >
+                    {fontFamilies.map((f) => (
+                      <option key={f.id} value={f.id}>
+                        {f.label} ({f.category})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 <div>
                   <label className="text-[11px] font-semibold text-slate-600 block mb-1">
                     {t.captionSizeLabel} ({config.bottomCaptionSize || 13}px)
@@ -634,7 +692,7 @@ export const StyleCustomizer: React.FC<StyleCustomizerProps> = ({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 self-end pb-1 col-span-2 sm:col-span-1">
+                <div className="flex items-center gap-3 self-end pb-1 col-span-2 sm:col-span-3">
                   <label className="flex items-center gap-1.5 text-xs text-slate-700 cursor-pointer">
                     <input
                       type="checkbox"
@@ -656,12 +714,14 @@ export const StyleCustomizer: React.FC<StyleCustomizerProps> = ({
                 <span className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px]">3</span>
                 {t.fontFamilyLabel}
               </label>
-              <span className="text-[11px] text-indigo-700 font-semibold">
-                {config.topHeadingFont || 'Plus Jakarta Sans'}
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] text-indigo-700 font-bold bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">
+                  {config.topHeadingFont || 'Plus Jakarta Sans'}
+                </span>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[220px] overflow-y-auto pr-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[260px] overflow-y-auto pr-1">
               {fontFamilies.map((font) => {
                 const isSelected = (config.topHeadingFont || 'Plus Jakarta Sans') === font.id;
                 return (
@@ -669,32 +729,38 @@ export const StyleCustomizer: React.FC<StyleCustomizerProps> = ({
                     key={font.id}
                     type="button"
                     id={`font-family-${font.id.replace(/\s+/g, '-').toLowerCase()}`}
-                    onClick={() => {
-                      updateConfig('topHeadingFont', font.id);
-                      updateConfig('bottomCaptionFont', font.id);
-                    }}
-                    className={`p-2.5 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${
+                    onClick={() => handleSelectFontFamily(font.id)}
+                    className={`p-3 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer shadow-2xs ${
                       isSelected
-                        ? 'border-indigo-600 bg-indigo-50/60 ring-1 ring-indigo-500/20'
-                        : 'border-slate-200 bg-white hover:bg-slate-50'
+                        ? 'border-indigo-600 bg-indigo-50/80 ring-2 ring-indigo-500/20'
+                        : 'border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300'
                     }`}
                   >
-                    <div>
+                    <div className="min-w-0 pr-2">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span
+                          className="text-sm font-bold text-slate-900 block truncate"
+                          style={{ fontFamily: font.fontStyle }}
+                        >
+                          {font.label}
+                        </span>
+                        <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 shrink-0">
+                          {font.category}
+                        </span>
+                      </div>
                       <span
-                        className="text-sm font-bold text-slate-900 block"
+                        className="text-xs text-indigo-900/80 block font-medium tracking-wide truncate"
                         style={{ fontFamily: font.fontStyle }}
                       >
-                        {font.label}
-                      </span>
-                      <span
-                        className="text-[11px] text-slate-500"
-                        style={{ fontFamily: font.fontStyle }}
-                      >
-                        {font.sample}
+                        IMBAS SAYA • SCAN ME
                       </span>
                     </div>
-                    {isSelected && (
-                      <Check className="w-4 h-4 text-indigo-600 shrink-0 ml-2" />
+                    {isSelected ? (
+                      <div className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center shrink-0 ml-1">
+                        <Check className="w-3.5 h-3.5" />
+                      </div>
+                    ) : (
+                      <div className="w-5 h-5 rounded-full border border-slate-300 shrink-0 ml-1" />
                     )}
                   </button>
                 );

@@ -18,6 +18,27 @@ import {
 import { QRStyleConfig } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 
+export const getFontFamilyCSS = (fontName?: string): string => {
+  const font = fontName || 'Plus Jakarta Sans';
+  switch (font) {
+    case 'Playfair Display':
+    case 'Merriweather':
+      return `"${font}", Georgia, Cambria, 'Times New Roman', Times, serif`;
+    case 'Roboto Mono':
+      return `"${font}", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`;
+    case 'Oswald':
+      return `"${font}", Impact, 'Arial Narrow', sans-serif`;
+    case 'Space Grotesk':
+    case 'Outfit':
+    case 'Montserrat':
+    case 'Poppins':
+    case 'Inter':
+    case 'Plus Jakarta Sans':
+    default:
+      return `"${font}", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
+  }
+};
+
 interface QRPreviewProps {
   payload: { raw: string; display: string; title: string };
   config: QRStyleConfig;
@@ -139,6 +160,14 @@ export const QRPreview: React.FC<QRPreviewProps> = ({ payload, config, onSaveToH
 
   // Generate composite high-resolution Canvas for export
   const createCompositeCanvas = async (targetSize: number): Promise<HTMLCanvasElement> => {
+    try {
+      if (document.fonts) {
+        await document.fonts.ready;
+      }
+    } catch {
+      // ignore font loading fallback
+    }
+
     const qrSize = targetSize;
     const padding = (config.cardPadding ?? 20) * (targetSize / 280);
     const cornerRadius = (config.cardCornerRadius ?? 16) * (targetSize / 280);
@@ -202,8 +231,8 @@ export const QRPreview: React.FC<QRPreviewProps> = ({ payload, config, onSaveToH
     if (hasTopHeading) {
       ctx.fillStyle = config.topHeadingColor || '#0f172a';
       const weight = config.topHeadingBold ?? true ? 'bold' : 'normal';
-      const fontName = config.topHeadingFont || 'Plus Jakarta Sans';
-      ctx.font = `${weight} ${headingFontSize}px "${fontName}", sans-serif`;
+      const fontCSS = getFontFamilyCSS(config.topHeadingFont);
+      ctx.font = `${weight} ${headingFontSize}px ${fontCSS}`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
 
@@ -244,8 +273,8 @@ export const QRPreview: React.FC<QRPreviewProps> = ({ payload, config, onSaveToH
       currentY += padding * 0.4;
       ctx.fillStyle = config.bottomCaptionColor || '#64748b';
       const weight = config.bottomCaptionBold ? 'bold' : 'normal';
-      const fontName = config.bottomCaptionFont || 'Plus Jakarta Sans';
-      ctx.font = `${weight} ${captionFontSize}px "${fontName}", sans-serif`;
+      const fontCSS = getFontFamilyCSS(config.bottomCaptionFont);
+      ctx.font = `${weight} ${captionFontSize}px ${fontCSS}`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
 
@@ -331,9 +360,9 @@ export const QRPreview: React.FC<QRPreviewProps> = ({ payload, config, onSaveToH
           const fullSvg = `
 <svg xmlns="http://www.w3.org/2000/svg" width="${totalW}" height="${totalH}" viewBox="0 0 ${totalW} ${totalH}">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&amp;family=Inter:wght@400;700&amp;family=Outfit:wght@500;700&amp;family=Montserrat:wght@500;700&amp;family=Poppins:wght@500;700&amp;family=Playfair+Display:wght@600;800&amp;display=swap');
-    .heading { font-family: "${config.topHeadingFont || 'Plus Jakarta Sans'}", sans-serif; font-size: ${headingSize}px; font-weight: ${config.topHeadingBold ? 'bold' : 'normal'}; fill: ${config.topHeadingColor || '#0f172a'}; text-anchor: middle; }
-    .caption { font-family: "${config.bottomCaptionFont || 'Plus Jakarta Sans'}", sans-serif; font-size: ${captionSize}px; font-weight: ${config.bottomCaptionBold ? 'bold' : 'normal'}; fill: ${config.bottomCaptionColor || '#64748b'}; text-anchor: middle; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&amp;family=Merriweather:wght@400;700&amp;family=Montserrat:wght@500;700&amp;family=Oswald:wght@500;700&amp;family=Outfit:wght@500;700&amp;family=Playfair+Display:ital,wght@0,600;0,700;1,600&amp;family=Plus+Jakarta+Sans:wght@400;700&amp;family=Poppins:wght@500;700&amp;family=Roboto+Mono:wght@500;700&amp;family=Space+Grotesk:wght@500;700&amp;display=swap');
+    .heading { font-family: ${getFontFamilyCSS(config.topHeadingFont)}; font-size: ${headingSize}px; font-weight: ${config.topHeadingBold ? 'bold' : 'normal'}; fill: ${config.topHeadingColor || '#0f172a'}; text-anchor: middle; }
+    .caption { font-family: ${getFontFamilyCSS(config.bottomCaptionFont)}; font-size: ${captionSize}px; font-weight: ${config.bottomCaptionBold ? 'bold' : 'normal'}; fill: ${config.bottomCaptionColor || '#64748b'}; text-anchor: middle; }
   </style>
   <rect width="${totalW}" height="${totalH}" rx="${config.cardCornerRadius ?? 16}" fill="${config.isTransparentBg ? 'none' : config.cardBgColor || '#ffffff'}" stroke="${config.cardBorderColor || '#e2e8f0'}" stroke-width="${config.cardBorderWidth ?? 1}" />
   ${hasTop ? `<text x="${totalW / 2}" y="${padding + headingSize}" class="heading">${topTextContent}</text>` : ''}
@@ -491,7 +520,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({ payload, config, onSaveToH
             <div
               className="text-center w-full mb-3 px-2 tracking-tight transition-all"
               style={{
-                fontFamily: `'${config.topHeadingFont || 'Plus Jakarta Sans'}', sans-serif`,
+                fontFamily: getFontFamilyCSS(config.topHeadingFont),
                 fontSize: `${config.topHeadingSize || 18}px`,
                 fontWeight: config.topHeadingBold ? 700 : 500,
                 color: config.topHeadingColor || '#0f172a',
@@ -517,7 +546,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({ payload, config, onSaveToH
             <div
               className="text-center w-full mt-3 px-2 transition-all"
               style={{
-                fontFamily: `'${config.bottomCaptionFont || 'Plus Jakarta Sans'}', sans-serif`,
+                fontFamily: getFontFamilyCSS(config.bottomCaptionFont),
                 fontSize: `${config.bottomCaptionSize || 13}px`,
                 fontWeight: config.bottomCaptionBold ? 700 : 400,
                 color: config.bottomCaptionColor || '#64748b',

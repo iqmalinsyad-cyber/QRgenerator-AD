@@ -41,22 +41,35 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-2xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-18 sm:h-20">
           {/* Logo & Brand */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-xs">
-              <QrCode className="w-6 h-6" />
+          <div className="flex items-center gap-3 sm:gap-3.5">
+            <div className="h-12 sm:h-14 w-12 sm:w-14 rounded-2xl overflow-hidden bg-white border border-slate-200/90 shadow-xs flex items-center justify-center shrink-0 p-1">
+              <img
+                src="https://lh3.googleusercontent.com/d/198r4DfNb4jDUBy7RjryG9GEBoDMB8nhg"
+                alt="Aidee Creatives Logo"
+                className="w-full h-full object-contain"
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  // Fallback if image fails
+                  const target = e.currentTarget;
+                  target.style.display = 'none';
+                  if (target.parentElement) {
+                    target.parentElement.innerHTML = '<svg class="w-8 h-8 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/></svg>';
+                  }
+                }}
+              />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-slate-900 text-base sm:text-lg tracking-tight">
+                <span className="font-extrabold text-slate-900 text-base sm:text-xl tracking-tight">
                   {t.appTitle}
                 </span>
-                <span className="text-[10px] uppercase font-black bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-md tracking-wider">
+                <span className="text-[10px] sm:text-xs uppercase font-black bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-md tracking-wider">
                   {t.appBadge}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 font-medium hidden sm:block">
+              <p className="text-xs text-slate-500 font-medium hidden sm:block">
                 {t.appSubtitle}
               </p>
             </div>

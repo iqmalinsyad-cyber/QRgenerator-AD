@@ -553,6 +553,12 @@ export interface PresetIcon {
 // Crisp data URI SVG icons for center logos
 export const PRESET_ICONS: PresetIcon[] = [
   {
+    id: 'aidee-creatives',
+    name: 'Aidee Creatives Logo',
+    category: 'Jenama',
+    svgDataUrl: 'https://lh3.googleusercontent.com/d/198r4DfNb4jDUBy7RjryG9GEBoDMB8nhg',
+  },
+  {
     id: 'link',
     name: 'Pautan Web',
     category: 'Asas',
